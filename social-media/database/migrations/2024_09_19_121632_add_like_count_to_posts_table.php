@@ -9,17 +9,15 @@ class AddLikeCountToPostsTable extends Migration
     public function up()
     {
         Schema::table('posts', function (Blueprint $table) {
+            // Only add like_count column, since user_id already exists
             $table->integer('like_count')->default(0);
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
     public function down()
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropForeign('posts_user_id_foreign');
-            $table->dropColumn('user_id');
+            // Only drop like_count column in case of rollback
             $table->dropColumn('like_count');
         });
     }

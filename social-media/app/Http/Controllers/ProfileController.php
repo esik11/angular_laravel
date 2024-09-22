@@ -9,14 +9,23 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    // Show the user's profile
     public function show()
     {
-        $user = Auth::user();
-        return view('profile.show', ['user' => $user]);
+        $user = auth()->user();
+        $profile = $user->profile;
+        $header = 'Your Profile Header';
+
+        return view('profile.show', compact('user', 'profile', 'header'));
     }
 
-    // Handle profile updates, including profile picture
+    public function edit()
+    {
+        $user = Auth::user();
+        $profile = $user->profile;
+
+        return view('profile.edit', compact('user', 'profile'));
+    }
+
     public function update(Request $request)
     {
         $request->validate([
@@ -27,23 +36,18 @@ class ProfileController extends Controller
         ]);
 
         $user = Auth::user();
-
-        // If the user doesn't have a profile, create a new one
         $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
 
         if ($request->hasFile('profile_picture')) {
-            // Delete the old profile picture if it exists
             if ($profile->profile_picture) {
                 Storage::delete('public/profile_pictures/' . $profile->profile_picture);
             }
 
-            // Store the new profile picture
             $fileName = time() . '.' . $request->profile_picture->extension();
             $request->profile_picture->storeAs('public/profile_pictures', $fileName);
             $profile->profile_picture = $fileName;
         }
 
-        // Update the other fields
         $profile->bio = $request->input('bio');
         $profile->address = $request->input('address');
         $profile->phone_number = $request->input('phone_number');
@@ -52,4 +56,3 @@ class ProfileController extends Controller
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 }
-

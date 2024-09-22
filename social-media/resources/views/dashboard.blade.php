@@ -10,6 +10,12 @@
             <!-- Card for the post creation and display section -->
             <div class="bg-white shadow-lg rounded-lg p-6">
                 
+                <!-- Welcome message for the logged-in user -->
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-bold text-gray-700">Welcome, {{ Auth::user()->name }}!</h1>
+            
+                </div>
+
                 <!-- Create a New Post Button -->
                 <div class="text-center mb-8">
                     <a href="{{ url('posts/index.html') }}" class="px-6 py-3 bg-blue-500 hover:bg-blue-700 text-black font-bold rounded-md shadow-md transition duration-500 ease-in-out">
@@ -18,7 +24,7 @@
                 </div>
 
                 <!-- Your Posts Section Title -->
-                <h3 class="text-xl font-bold text-gray-700 mb-6 text-center">Your Posts</h3>
+                <h3 class="text-xl font-bold text-gray-700 mb-6 text-center">Posts</h3>
 
                 <!-- Posts Display Section -->
                 @if ($posts->isEmpty())
