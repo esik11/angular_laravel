@@ -1,13 +1,5 @@
 <?php
 
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Route;
-
-
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
@@ -27,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Add a comment to a post
     Route::post('/posts/{post}/comments', [PostController::class, 'addComment']);
 
-    // Get user profile
-    Route::get('/profile', [ProfileController::class, 'show']); // Add this line
+    // User profile routes
+    Route::get('/profile', [ProfileController::class, 'show']); // Fetch user profile
+    Route::put('/profile', [ProfileController::class, 'update']); // Update user profile
 });

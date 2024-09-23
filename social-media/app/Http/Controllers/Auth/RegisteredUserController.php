@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserProfile; // Import the UserProfile model
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -39,14 +40,25 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Create the user
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
+        // Create the user profile
+        UserProfile::create([
+            'user_id' => $user->id,
+            'profile_picture' => null, // Default or null value
+            'bio' => 'This is a default bio.', // Optional default bio
+            'address' => 'Not specified', // Default address
+            'phone_number' => 'Not specified', // Default phone number
+        ]);
+
         event(new Registered($user));
 
+        // Log the user in
         Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);

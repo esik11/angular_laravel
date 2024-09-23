@@ -1,58 +1,62 @@
 <?php
 
+// app/Http/Controllers/ProfileController.php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\UserProfile;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Models\UserProfile;
 
 class ProfileController extends Controller
 {
+    // Fetch user and profile information
     public function show()
     {
-        $user = auth()->user();
-        $profile = $user->profile;
-        $header = 'Your Profile Header';
-
-        return view('profile.show', compact('user', 'profile', 'header'));
-    }
-
-    public function edit()
-    {
         $user = Auth::user();
-        $profile = $user->profile;
+        $profile = UserProfile::where('user_id', $user->id)->first();
 
-        return view('profile.edit', compact('user', 'profile'));
+        return response()->json(['user' => $user, 'profile' => $profile]);
     }
 
+    // Update the user profile
+    // Update the user profile
     public function update(Request $request)
     {
-        $request->validate([
-            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'bio' => 'nullable|string|max:500',
-            'address' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|max:15',
-        ]);
-
-        $user = Auth::user();
-        $profile = $user->profile ?: new UserProfile(['user_id' => $user->id]);
-
-        if ($request->hasFile('profile_picture')) {
-            if ($profile->profile_picture) {
-                Storage::delete('public/profile_pictures/' . $profile->profile_picture);
-            }
-
-            $fileName = time() . '.' . $request->profile_picture->extension();
-            $request->profile_picture->storeAs('public/profile_pictures', $fileName);
-            $profile->profile_picture = $fileName;
+        $user = auth()->user();
+        $profile = UserProfile::where('user_id', $user->id)->first();
+    
+        if (!$profile) {
+            return response()->json(['message' => 'Profile not found.'], 404);
         }
 
-        $profile->bio = $request->input('bio');
-        $profile->address = $request->input('address');
-        $profile->phone_number = $request->input('phone_number');
-        $profile->save();
+    // Validate incoming data
+    $request->validate([
+        'bio' => 'nullable|string|max:255',
+        'address' => 'nullable|string|max:255',
+        'phone_number' => 'nullable|string|max:15',
+        'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        return redirect()->back()->with('success', 'Profile updated successfully.');
+    // Update fields
+    if ($request->has('bio')) {
+        $profile->bio = $request->bio;
     }
+    if ($request->has('address')) {
+        $profile->address = $request->address;
+    }
+    if ($request->has('phone_number')) {
+        $profile->phone_number = $request->phone_number;
+    }
+    if ($request->hasFile('profile_picture')) {
+        $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+        $profile->profile_picture = $path;
+    }
+
+    $profile->save(); // Save changes to the user_profiles table
+
+    return response()->json(['message' => 'Profile updated successfully.']);
+}
+
+    
 }

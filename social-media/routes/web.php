@@ -53,10 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
 
     // Profile routes
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile'); // Route for showing the profile
+Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // Route for editing the profile
+Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update'); // Route for updating the profile
 });
 
 // Include routes for authentication
