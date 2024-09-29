@@ -9,7 +9,7 @@ angular.module('profileApp', [])
         $http.get('/api/profile')
             .then(function(response) {
                 $scope.user = response.data.user;
-                $scope.profile = response.data.profile;
+                $scope.profile = response.data.profile || {};  // Ensure profile is initialized as an object
             })
             .catch(function(error) {
                 console.error('Error fetching profile:', error);
@@ -17,18 +17,22 @@ angular.module('profileApp', [])
             });
     };
     
-
     // Call the function to fetch profile data
     $scope.fetchProfile();
 
     // Update profile
     $scope.updateProfile = function() {
         var formData = new FormData();
-        formData.append('profile_picture', $scope.profile.profile_picture);
-        formData.append('bio', $scope.profile.bio);
-        formData.append('address', $scope.profile.address);
-        formData.append('phone_number', $scope.profile.phone_number);
+        
+        // Append the file object only if a new file has been selected
+        if ($scope.profile.profile_picture instanceof File) {
+            formData.append('profile_picture', $scope.profile.profile_picture);
+        }
     
+        formData.append('bio', $scope.profile.bio || '');
+        formData.append('address', $scope.profile.address || '');
+        formData.append('phone_number', $scope.profile.phone_number || '');
+        
         $http.post('/api/profile', formData, {
             headers: {
                 'Content-Type': undefined // Let Angular set the content type
@@ -44,5 +48,17 @@ angular.module('profileApp', [])
             alert('Error updating profile: ' + error.data.message);
         });
     };
+    $scope.previewProfilePicture = function() {
+        if ($scope.profile.profile_picture instanceof File) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $scope.$apply(function() {
+                    $scope.profile.previewSrc = e.target.result;
+                });
+            };
+            reader.readAsDataURL($scope.profile.profile_picture);
+        }
+    };
+    
     
 }]);
