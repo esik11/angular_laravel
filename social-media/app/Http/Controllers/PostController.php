@@ -4,70 +4,80 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
-use App\Models\Comment;
 use App\Models\Like;
+use App\Models\Comment;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
     // Fetch all posts with their associated user and comments
-    public function index()
-    {
-        // Eager-load user for both posts and comments
-        $posts = Post::with(['user', 'comments.user'])->latest()->get();
-        return response()->json($posts);
-    }
+   // Fetch all posts with the user who created them
+public function index()
+{
+    $posts = Post::with('user')->get(); // Eager-load the user
+    return response()->json($posts);
+}
 
-    // Store a new post
-    public function store(Request $request)
+// Store a new post with user_id
+public function store(Request $request)
+{
+    $post = Post::create([
+        'content' => $request->content,
+        'user_id' => auth()->id(), // Ensure the logged-in user is linked
+    ]);
+
+    return response()->json($post->load('user')); // Return post with user data
+}
+
+
+
+    // Update an existing post (only by the owner)
+    public function update(Request $request, $postId)
     {
+        // Validate the request data
         $request->validate([
-            'content' => 'required',
+            'content' => 'required|string|max:255', // Adjust validation rules as necessary
         ]);
 
-        $post = Post::create([
-            'content' => $request->content,
-            'user_id' => auth()->id(),
-        ]);
+        // Find the post by ID
+        $post = Post::findOrFail($postId);
 
-        // Return post along with user info
-        return response()->json($post->load('user'), 201);
+        // Update the post content
+        $post->content = $request->input('content');
+        $post->save();
+
+        // Return a response
+        return response()->json(['message' => 'Post updated successfully', 'post' => $post], 200);
     }
+
 
     // Like a post or remove like (unlike)
     public function like(Post $post)
-{
-    // Check if the user has already liked the post
-    $existingLike = Like::where('user_id', auth()->id())
-                        ->where('post_id', $post->id)
-                        ->first();
+    {
+        $existingLike = Like::where('user_id', auth()->id())
+                            ->where('post_id', $post->id)
+                            ->first();
 
-    if ($existingLike) {
-        // If the like already exists, remove it (unlike)
-        $existingLike->delete();
-
-        // Ensure like_count doesn't go below zero
-        if ($post->like_count > 0) {
-            $post->like_count--; 
+        if ($existingLike) {
+            $existingLike->delete();
+            if ($post->like_count > 0) {
+                $post->like_count--; 
+            }
+            $post->save();
+            return response()->json(['message' => 'Post unliked successfully', 'likes_count' => $post->like_count]);
         }
+
+        $like = new Like();
+        $like->user_id = auth()->id();
+        $like->post_id = $post->id;
+        $like->save();
+
+        $post->like_count++; 
         $post->save();
 
-        return response()->json(['message' => 'Post unliked successfully', 'likes_count' => $post->like_count]);
+        return response()->json(['message' => 'Post liked successfully', 'likes_count' => $post->like_count]);
     }
 
-    // If no existing like, create a new one
-    $like = new Like();
-    $like->user_id = auth()->id();
-    $like->post_id = $post->id;
-    $like->save();
-
-    // Increment the like count
-    $post->like_count++; 
-    $post->save();
-
-    return response()->json(['message' => 'Post liked successfully', 'likes_count' => $post->like_count]);
-}
-
-    
     // Add a comment to a post
     public function addComment(Request $request, Post $post)
     {
@@ -81,7 +91,24 @@ class PostController extends Controller
             'comment' => $request->comment,
         ]);
 
-        // Return the comment with the associated user data
         return response()->json($comment->load('user'), 201);
+    }
+
+    // Edit an existing post (only by the owner)
+    public function edit(Request $request, Post $post)
+    {
+        // Ensure only the post owner can edit the post
+        if ($post->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'content' => 'required',
+        ]);
+
+        $post->content = $request->input('content');
+        $post->save();
+
+        return response()->json($post);
     }
 }

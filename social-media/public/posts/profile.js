@@ -4,47 +4,45 @@ angular.module('profileApp', [])
     $scope.profile = {};
     $scope.editMode = false;
 
-    // Fetch user and profile information
+    // Fetch user and profile information when the controller loads
     $scope.fetchProfile = function() {
-        $http.get('/api/profile').then(function(response) {
-            console.log('Profile data:', response.data);
-            $scope.user = response.data.user;
-            $scope.profile = response.data.profile;
-        }, function(error) {
-            console.error('Error fetching profile:', error);
-        });
+        $http.get('/api/profile')
+            .then(function(response) {
+                $scope.user = response.data.user;
+                $scope.profile = response.data.profile;
+            })
+            .catch(function(error) {
+                console.error('Error fetching profile:', error);
+                alert('Error fetching profile: ' + error.data.message);
+            });
     };
+    
+
+    // Call the function to fetch profile data
+    $scope.fetchProfile();
 
     // Update profile
     $scope.updateProfile = function() {
-        if (!$scope.profile) {
-            alert('Profile data is not available.');
-            return;
-        }
+        var formData = new FormData();
+        formData.append('profile_picture', $scope.profile.profile_picture);
+        formData.append('bio', $scope.profile.bio);
+        formData.append('address', $scope.profile.address);
+        formData.append('phone_number', $scope.profile.phone_number);
     
-        let formData = new FormData();
-        formData.append('bio', $scope.profile.bio || '');
-        formData.append('address', $scope.profile.address || '');
-        formData.append('phone_number', $scope.profile.phone_number || '');
-    
-        if ($scope.profile.profile_picture) {
-            formData.append('profile_picture', $scope.profile.profile_picture);
-        }
-    
-        $http.put('/api/profile', formData, {
-            transformRequest: angular.identity,
+        $http.post('/api/profile', formData, {
             headers: {
-                'Content-Type': undefined
+                'Content-Type': undefined // Let Angular set the content type
             }
-        }).then(function(response) {
-            $scope.editMode = false;
-            alert('Profile updated successfully!');
+        })
+        .then(function(response) {
+            alert(response.data.message);
+            $scope.editMode = false; // Exit edit mode after success
             $scope.fetchProfile(); // Refresh the profile data
-        }, function(error) {
+        })
+        .catch(function(error) {
             console.error('Error updating profile:', error);
-            alert('An error occurred while updating the profile. Please try again.');
+            alert('Error updating profile: ' + error.data.message);
         });
     };
-    
     
 }]);
