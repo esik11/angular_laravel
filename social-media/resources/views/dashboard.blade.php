@@ -18,7 +18,7 @@
                 <!-- Create a New Post Button -->
                 <div class="text-center mb-8">
                     <a href="{{ url('posts/index.html') }}" class="px-6 py-3 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded-md shadow-md transition duration-500 ease-in-out">
-                       CREATE YOUR NEW POST HERE!!
+                       CREATE YOUR NEW POST HERE AND SEE EVERYONES POST!!
                     </a>
                 </div>
 

@@ -58,13 +58,19 @@ $scope.likePost = function(post) {
 
         // Add a comment to a post
         $scope.addComment = function(post) {
-            $http.post('/api/posts/' + post.id + '/comments', { comment: post.newComment })
-                .then(function(response) {
-                    post.comments.push(response.data);
-                    post.newComment = '';
-                }, function(error) {
-                    alert('Error adding comment: ' + error.data.message);
-                });
+            const data = {
+                comment: post.newComment
+            };
+    
+            $http.post('/api/posts/' + post.id + '/comments', data).then(function(response) {
+                // Push the new comment to the post's comments array
+                post.comments.push(response.data);
+    
+                // Clear the comment input field
+                post.newComment = '';
+            }, function(error) {
+                console.error('Error adding comment:', error);
+            });
         };
 
         // Edit a post (only the creator can edit)

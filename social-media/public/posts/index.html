@@ -204,23 +204,22 @@
                     </div>
                     
 
-                    <!-- Comment Form -->
-                    <form ng-submit="addComment(post)" class="comment-box d-flex mt-3">
-                        <input type="text" ng-model="post.newComment" class="form-control me-2" placeholder="Add a comment..." required>
-                        <button type="submit" class="btn btn-secondary">Comment</button>
-                    </form>
+                   <!-- Comment Form -->
+<form ng-submit="addComment(post)" class="comment-box d-flex mt-3">
+    <input type="text" ng-model="post.newComment" class="form-control me-2" placeholder="Add a comment..." required>
+    <button type="submit" class="btn btn-secondary">Comment</button>
+</form>
 
                     <!-- Comments List -->
-                    <ul class="list-group mt-3">
-                        <li ng-repeat="comment in post.comments" class="list-group-item bg-light">
-                            <!-- User Avatar for Comments -->
-                            <img ng-src="{{ comment.user.profile_picture || 'https://via.placeholder.com/30' }}" alt="{{ comment.user.name }}" class='avatar'> 
-                            <p><strong>{{ comment.user.name }}:</strong> {{ comment.comment }}</p>
-                            <small class='text-muted'>Posted on {{ comment.created_at | date:'short' }}</small>
-                        </li>
-                    </ul>
-                </li>
-           </ul> 
+<ul class="list-group mt-3">
+    <li ng-repeat="comment in post.comments" class="list-group-item bg-light">
+        <!-- User Avatar for Comments -->
+        <img ng-src="{{ comment.user.profile_picture || 'https://via.placeholder.com/30' }}" alt="{{ comment.user.name }}" class='avatar'> 
+        <p><strong>{{ comment.user.name }}:</strong> {{ comment.comment }}</p>
+        <small class='text-muted'>Posted on {{ comment.created_at | date:'short' }}</small>
+    </li>
+</ul>
+
        </div>  
    </div>
 

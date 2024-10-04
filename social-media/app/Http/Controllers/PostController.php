@@ -13,18 +13,19 @@ class PostController extends Controller
     // Fetch all posts with their associated user and comments
    // Fetch all posts with the user who created them
    // Fetch all posts with the user who created them
-public function index()
-{
-    $user = Auth::user();
-    $posts = Post::with('user')->get(); // Eager-load the user
-
-    // Append a "user_has_liked" field to each post based on the logged-in user
-    $posts->each(function ($post) use ($user) {
-        $post->user_has_liked = $post->likes()->where('user_id', $user->id)->exists();
-    });
-
-    return response()->json($posts);
-}
+   public function index()
+   {
+       $user = Auth::user();
+       // Eager load the user and comments (and the user who made the comment)
+       $posts = Post::with(['user', 'comments.user'])->get();
+   
+       // Append a "user_has_liked" field to each post based on the logged-in user
+       $posts->each(function ($post) use ($user) {
+           $post->user_has_liked = $post->likes()->where('user_id', $user->id)->exists();
+       });
+   
+       return response()->json($posts);
+   }
 
 
 // Store a new post with user_id
