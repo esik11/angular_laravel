@@ -36,13 +36,20 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use Pusher\Pusher;
+use App\Http\Controllers\PusherTestController;
 use Illuminate\Support\Facades\Auth;
+
+
 
 // Route for the home page
 Route::get('/', function () {
     return view('welcome');
 });
-
+Route::get('/posts', function () {
+    return view('index');
+});
+// Route::get('/test-pusher', [PusherTestController::class, 'testPusher']);
 // Route for the dashboard, using DashboardController
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
@@ -57,6 +64,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit'); // Route for editing the profile
 Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update'); // Route for updating the profile
 });
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 // Include routes for authentication
 require __DIR__.'/auth.php';

@@ -1,28 +1,35 @@
 angular.module('socialMediaApp', [])
-    .controller('PostController', function($scope, $http) {
+    .controller('PostController', ['$scope', '$http', function($scope, $http) {
         $scope.posts = [];
         $scope.newPost = {};
         $scope.loggedInUser = {}; // Add the current logged-in user's data
+        $scope.notifications = []; // Initialize notifications
+        $scope.unreadCount = 0; // Initialize unread notifications count
 
         // Fetch current logged-in user info
-        // Fetch current logged-in user info
-$scope.getLoggedInUser = function() {
-    $http.get('/api/user') // Assumes there's an API route to fetch the logged-in user's info
-        .then(function(response) {
-            $scope.loggedInUser = response.data;
-            console.log($scope.loggedInUser); // Debug logged-in user data
-        });
-};
-
+        $scope.getLoggedInUser = function() {
+            $http.get('/api/user') // Assumes there's an API route to fetch the logged-in user's info
+                .then(function(response) {
+                    $scope.loggedInUser = response.data;
+                    console.log($scope.loggedInUser); // Debug logged-in user data
+                });
+        };
 
         // Create a new post
         $scope.createPost = function() {
-            $http.post('/api/posts', $scope.newPost)
+            const postData = {
+                content: $scope.newPost.content,
+                // Include other required fields here, if any
+            };
+        
+            $http.post('/api/posts', postData)
                 .then(function(response) {
-                    $scope.posts.unshift(response.data); 
-                    $scope.newPost = {};
-                }, function(error) {
-                    alert('Error creating post: ' + error.data.message);
+                    // Handle success
+                    $scope.posts.push(response.data);
+                    $scope.newPost.content = ''; // Clear input field
+                })
+                .catch(function(error) {
+                    console.error('Error creating post:', error);
                 });
         };
 
@@ -37,14 +44,17 @@ $scope.getLoggedInUser = function() {
         };
 
         // Like a post
-        $scope.likePost = function(post) {
-            $http.post('/api/posts/' + post.id + '/like')
-                .then(function(response) {
-                    post.like_count++;
-                }, function(error) {
-                    alert('Error liking post: ' + error.data.message);
-                });
-        };
+// Like or unlike a post
+$scope.likePost = function(post) {
+    $http.post('/api/posts/' + post.id + '/like')
+        .then(function(response) {
+            // Update the post based on the response
+            post.like_count = response.data.likes_count; // Update like count from response
+            post.user_has_liked = response.data.liked; // Update UI to reflect like/unlike state
+        }, function(error) {
+            alert('Error liking post: ' + error.data.message);
+        });
+};
 
         // Add a comment to a post
         $scope.addComment = function(post) {
@@ -67,7 +77,6 @@ $scope.getLoggedInUser = function() {
                 alert('You are not authorized to edit this post.');
             }
         };
-        
 
         // Save changes to a post after editing
         $scope.savePost = function(post) {
@@ -83,4 +92,35 @@ $scope.getLoggedInUser = function() {
         // Initialize by fetching posts and user info
         $scope.getPosts();
         $scope.getLoggedInUser();
-    });
+    }])
+    .controller('NotificationController', ['$scope', '$http', function($scope, $http) {
+        $scope.notifications = [];
+        $scope.unreadCount = 0;
+
+        // Fetch notifications for the logged-in user
+        $scope.fetchNotifications = function() {
+            $http.get('/api/notifications') // Assumes there's an API route to fetch notifications
+                .then(function(response) {
+                    $scope.notifications = response.data;
+                    $scope.unreadCount = $scope.notifications.filter(n => !n.is_read).length; // Count unread notifications
+                })
+                .catch(function(error) {
+                    console.error('Error fetching notifications:', error);
+                });
+        };
+
+        // Clear all notifications
+        $scope.clearNotifications = function() {
+            $http.post('/api/notifications/clear') // Assumes there's an API route to clear notifications
+                .then(function(response) {
+                    $scope.notifications = [];
+                    $scope.unreadCount = 0;
+                })
+                .catch(function(error) {
+                    console.error('Error clearing notifications:', error);
+                });
+        };
+
+        // Call fetchNotifications on controller initialization
+        $scope.fetchNotifications();
+    }]);

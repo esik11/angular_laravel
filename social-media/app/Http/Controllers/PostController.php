@@ -12,11 +12,20 @@ class PostController extends Controller
 {
     // Fetch all posts with their associated user and comments
    // Fetch all posts with the user who created them
+   // Fetch all posts with the user who created them
 public function index()
 {
+    $user = Auth::user();
     $posts = Post::with('user')->get(); // Eager-load the user
+
+    // Append a "user_has_liked" field to each post based on the logged-in user
+    $posts->each(function ($post) use ($user) {
+        $post->user_has_liked = $post->likes()->where('user_id', $user->id)->exists();
+    });
+
     return response()->json($posts);
 }
+
 
 // Store a new post with user_id
 public function store(Request $request)
@@ -53,31 +62,32 @@ public function store(Request $request)
 
     // Like a post or remove like (unlike)
     public function like(Post $post)
-    {
-        $existingLike = Like::where('user_id', auth()->id())
-                            ->where('post_id', $post->id)
-                            ->first();
+{
+    $existingLike = Like::where('user_id', auth()->id())
+                        ->where('post_id', $post->id)
+                        ->first();
 
-        if ($existingLike) {
-            $existingLike->delete();
-            if ($post->like_count > 0) {
-                $post->like_count--; 
-            }
-            $post->save();
-            return response()->json(['message' => 'Post unliked successfully', 'likes_count' => $post->like_count]);
-        }
-
-        $like = new Like();
-        $like->user_id = auth()->id();
-        $like->post_id = $post->id;
-        $like->save();
-
-        $post->like_count++; 
+    // Check if the user has already liked the post
+    if ($existingLike) {
+        // User already liked the post, so remove the like (unlike)
+        $existingLike->delete();
+        $post->like_count = max(0, $post->like_count - 1); // Prevent negative like count
         $post->save();
 
-        return response()->json(['message' => 'Post liked successfully', 'likes_count' => $post->like_count]);
+        return response()->json(['message' => 'Post unliked successfully', 'liked' => false, 'likes_count' => $post->like_count]);
     }
 
+    // User has not liked the post yet, so add a like
+    $like = new Like();
+    $like->user_id = auth()->id();
+    $like->post_id = $post->id;
+    $like->save();
+
+    $post->like_count++;
+    $post->save();
+
+    return response()->json(['message' => 'Post liked successfully', 'liked' => true, 'likes_count' => $post->like_count]);
+}
     // Add a comment to a post
     public function addComment(Request $request, Post $post)
     {

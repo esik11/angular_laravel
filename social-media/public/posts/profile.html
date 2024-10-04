@@ -10,29 +10,29 @@
     <script src="profile-pic.js"></script>
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #f4f7fa;
         }
         .container {
-            max-width: 700px;
+            max-width: 800px;
         }
         .profile-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
         }
         .profile-picture {
             width: 150px;
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #007bff;
+            border: 4px solid #007bff;
         }
         .social-media-buttons {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
         }
         .social-media-buttons a {
             color: white;
@@ -48,9 +48,9 @@
         }
         .edit-profile {
             padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
         .form-control {
             margin-bottom: 15px;
@@ -80,19 +80,22 @@
             <p ng-if="!profile.profile_picture">No profile picture uploaded.</p>
         </div>
         
-        <h3>{{ user.name }}</h3>
+        <h3 class="mb-2">{{ user.name }}</h3>
         <p class="text-muted">{{ user.email }}</p>
-        <p><strong>Bio:</strong> {{ profile.bio || 'No bio available' }}</p>
-        <p><strong>Address:</strong> {{ profile.address || 'No address available' }}</p>
-        <p><strong>Phone Number:</strong> {{ profile.phone_number || 'No phone number available' }}</p>
         
+        <div class="bio-section mb-3">
+          <p><strong>Bio:</strong> {{ profile.bio || 'No bio available' }}</p>
+          <p><strong>Address:</strong> {{ profile.address || 'No address available' }}</p>
+          <p><strong>Phone Number:</strong> {{ profile.phone_number || 'No phone number available' }}</p>
+        </div>
+
         <button class="btn btn-primary mt-3" ng-click="editMode = true">Edit Profile</button>
 
-        <!-- Social media links (Optional) -->
+        <!-- Social media links -->
         <div class="social-media-buttons mt-4">
-            <a href="#" class="btn btn-facebook"><i class="fab fa-facebook-f"></i> Facebook</a>
-            <a href="#" class="btn btn-twitter"><i class="fab fa-twitter"></i> Twitter</a>
-            <a href="#" class="btn btn-instagram"><i class="fab fa-instagram"></i> Instagram</a>
+            <a href="#" class="btn btn-facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="btn btn-twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="btn btn-instagram"><i class="fab fa-instagram"></i></a>
         </div>
     </div>
 
@@ -120,9 +123,14 @@
             <button type="button" class="btn btn-secondary" ng-click="editMode = false">Cancel</button>
         </form>
     </div>
+
 </div>
 
-<!-- FontAwesome for social media icons (optional) -->
+<!-- FontAwesome for social media icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+<!-- Bootstrap JS (optional) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
-</html>
+</html> 

@@ -15,7 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'show']);    // Fetch user profile
-    Route::put('/profile', [ProfileController::class, 'update']);  // Update user profile
+    Route::post('/profile', [ProfileController::class, 'update']);  // Update user profile
 
     // User Route
     Route::get('/user', [UserController::class, 'getUser']);  // Get logged-in user

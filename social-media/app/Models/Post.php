@@ -1,6 +1,5 @@
 <?php
 
-// app/Models/Post.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,9 +16,9 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function like()
+    public function likes() // Changed to plural
     {
-        return $this->hasMany(like::class);
+        return $this->hasMany(Like::class); // Ensure 'Like' is correctly capitalized
     }
 
     public function comments()
