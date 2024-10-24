@@ -129,4 +129,19 @@ $scope.likePost = function(post) {
 
         // Call fetchNotifications on controller initialization
         $scope.fetchNotifications();
+
+        var pusher = new Pusher('27594a89bb0dc5e5956c', {
+            cluster: 'ap1'
+          });
+          var channel = pusher.subscribe('my-channel');
+          channel.bind('my-event',function(data){
+            alert
+          });
+          $scope.showNotifications = function() {
+            $http.get('/api/notifications')
+                .then(function(response) {
+                    $scope.notifications = response.data;
+                    $scope.unreadCount = response.data.filter(n => !n.is_read).length;
+                });
+        };
     }]);

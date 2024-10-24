@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Notification; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Pusher\Pusher;
 class NotificationController extends Controller
 {
     // Fetch notifications for the logged-in user
@@ -42,10 +42,33 @@ class NotificationController extends Controller
             'is_read' => false,
             'data' => $request->data,
         ]);
+        $options = array(
+            'cluster' => 'ap1',
+            'useTLS' => true
+        );
+        $pusher = new Pusher(
+            env('PUSHER_APP_KEY'),
+            env('PUSHER_APP_SECRET'),
+            env('PUSHER_APP_ID'),
+            $options
+        );
+
+        $data = ['from' => $request->user_id, 'data' => $request->data];  // Including more data
+        $pusher->trigger('my-channel', 'my-event', $data);
+
 
         // Fire the NotificationSent event (you should implement this)
         event(new NotificationSent($notification));
         
         return response()->json(['message' => 'Notification sent!']);
     }
+    public function markAsRead($id)
+{
+    $notification = Notification::where('id', $id)->where('user_id', Auth::id())->first();
+    if ($notification) {
+        $notification->is_read = true;
+        $notification->save();
+    }
+    return response()->json(['message' => 'Notification marked as read']);
+}
 }

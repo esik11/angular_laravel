@@ -26,6 +26,7 @@ class PostController extends Controller
    
        return response()->json($posts);
    }
+   
 
 
 // Store a new post with user_id
@@ -101,8 +102,12 @@ public function store(Request $request)
             'user_id' => auth()->id(),
             'comment' => $request->comment,
         ]);
-
-        return response()->json($comment->load('user'), 201);
+        if($post->user_id !== auth()->id()) {
+            $post->user->notify(new CommentNotification($comment));
+        }
+    
+        return response()->json(['message' => 'Comment added successfully']);
+    
     }
 
     // Edit an existing post (only by the owner)
